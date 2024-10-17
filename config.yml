@@ -1,0 +1,135 @@
+apiVersion: kops.k8s.io/v1alpha2
+kind: Cluster
+metadata:
+  creationTimestamp: null
+  name: gehana26.fun
+spec:
+  api:
+    dns: {}
+  authorization:
+    rbac: {}
+  channel: stable
+  cloudProvider: aws
+  configBase: s3://gehana26.fun/gehana26.fun
+  dnsZone: gehana26.fun
+  etcdClusters:
+    - cpuRequest: 200m
+      etcdMembers:
+        - encryptedVolume: true
+          instanceGroup: control-plane-us-east-1a
+          name: a
+      manager:
+        backupRetentionDays: 90
+      memoryRequest: 100Mi
+      name: main
+    - cpuRequest: 100m
+      etcdMembers:
+        - encryptedVolume: true
+          instanceGroup: control-plane-us-east-1a
+          name: a
+      manager:
+        backupRetentionDays: 90
+      memoryRequest: 100Mi
+      name: events
+  iam:
+    allowContainerRegistry: true
+    legacy: false
+  kubeProxy:
+    enabled: false
+  kubelet:
+    anonymousAuth: false
+  kubernetesApiAccess:
+    - 0.0.0.0/0
+    - ::/0
+  kubernetesVersion: 1.30.2
+  masterPublicName: api.gehana26.fun
+  networkCIDR: 172.20.0.0/16
+  networking:
+    cilium:
+      enableNodePort: true
+  nonMasqueradeCIDR: 100.64.0.0/10
+  sshAccess:
+    - 0.0.0.0/0
+    - ::/0
+  subnets:
+    - cidr: 172.20.0.0/17
+      name: us-east-1a
+      type: Public
+      zone: us-east-1a
+    - cidr: 172.20.128.0/17
+      name: us-east-1b
+      type: Public
+      zone: us-east-1b
+  topology:
+    dns:
+      type: Public
+
+---
+
+apiVersion: kops.k8s.io/v1alpha2
+kind: InstanceGroup
+metadata:
+  creationTimestamp: null
+  labels:
+    kops.k8s.io/cluster: gehana26.fun
+  name: control-plane-us-east-1a
+spec:
+  image: 099720109477/ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-20240607
+  machineType: t2.micro
+  maxSize: 1
+  minSize: 1
+  role: Master
+  rootVolumeSize: 10
+  subnets:
+    - us-east-1a
+
+---
+
+apiVersion: kops.k8s.io/v1alpha2
+kind: InstanceGroup
+metadata:
+  creationTimestamp: null
+  labels:
+    kops.k8s.io/cluster: gehana26.fun
+  name: nodes-us-east-1a
+spec:
+  image: 099720109477/ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-20240607
+  machineType: t2.micro
+  maxSize: 1
+  minSize: 1
+  role: Node
+  rootVolumeSize: 10
+  subnets:
+    - us-east-1a
+
+---
+
+apiVersion: kops.k8s.io/v1alpha2
+kind: InstanceGroup
+metadata:
+  creationTimestamp: null
+  labels:
+    kops.k8s.io/cluster: gehana26.fun
+  name: nodes-us-east-1b
+spec:
+  image: 099720109477/ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-20240607
+  machineType: t2.micro
+  maxSize: 1
+  minSize: 1
+  role: Node
+  rootVolumeSize: 10
+  subnets:
+    - us-east-1b
+
+---
+
+apiVersion: kops.k8s.io/v1alpha2
+kind: SSHCredential
+metadata:
+  creationTimestamp: null
+  labels:
+    kops.k8s.io/cluster: gehana26.fun
+  name: admin
+spec:
+  publicKey: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCqweqbuVnd5RBx/U6doNy6IXzG5Ulx5ZpM+uP1qOV6L/4XeM1wkQ0Zp9JuvckYz1migL5MJP1uq8sI01PZCulWzwRpjmN6h4IasliuBZwZHdtDJ7/ydzeRPKKjl3upTWSuTi7mSFoYAQSnQL6K5DEo+mnzh/clVjRlwM4bF1kl3thdtZgb3WAu0fRNZ1LPFq2UcHSR8ucSrnDnbL7ojIjNEFHB4lShU9avB+QfdBRWYVur5K+/zBwXJiM0213qHqmMWYidNIjJkpyUC6HEdk1+RgnTlHsySoqqyfYhDV5pec5vinPwuZQ9PC4he1UXhJIDnB8JP/uAkaNRNQqy9IZ96c8sYdmUkk4ZEbHzZuac24m6RupN4FPofCSDHWwYG66fFSWc2ngL2DvoP/Xb/Kwalbx8vrURjO5OLcAsxU+0WFjpJQPGq1nn+cdLFM9PiO9d6Dl3eriqwuJ1o6mKtHfYVHMVUEqeEnayY03LH754N1/tkizzmfb9l5i9DADY0vk=
+    root@ip-172-31-46-160.ec2.internal
