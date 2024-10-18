@@ -4,6 +4,10 @@ metadata:
   labels:
     app: testpod1
   name: testpod1
+  annotations:
+    info: "bala deployment"
+    email: "bala"
+    owner: "bala"
 spec:
   replicas: 6
   selector:
@@ -18,3 +22,12 @@ spec:
       containers:
         - image: kiran2361993/kubegame:v2
           name: kubegame
+        - image: kiran2361993/mydb:v1
+          name: mysqldb
+          env:
+            - name: DB_NAME
+              value: "mysqldb"
+            - name: DB_PORT
+              value: "3306"
+            - name: DB_URL
+              value: "www"
