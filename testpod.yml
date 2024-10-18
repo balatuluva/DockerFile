@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: testpod1
+  name: testpod1
+spec:
+  replicas: 6
+  selector:
+    matchLabels:
+      app: testpod1
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: testpod1
+    spec:
+      containers:
+        - image: kiran2361993/kubegame:v2
+          name: kubegame
