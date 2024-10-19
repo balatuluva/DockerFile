@@ -21,23 +21,46 @@
 
 ---
 
-apiVersion: apps/v1
-kind: Deployment
+#apiVersion: apps/v1
+#kind: Deployment
+#metadata:
+#  labels:
+#    app: app1
+#  name: app1
+#spec:
+#  replicas: 3
+#  selector:
+#    matchLabels:
+#      app: app1
+#  strategy: {}
+#  template:
+#    metadata:
+#      labels:
+#        app: app1
+#    spec:
+#      containers:
+#        - image: kiran2361993/kubegame:v2
+#          name: kubegame
+
+---
+
+apiVersion: v1
+kind: Service
 metadata:
   labels:
     app: app1
-  name: app1
+  name: app-nlb
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: nlb
+    service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enable: "true"
+    service.beta.kubernetes.io/aws-load-balancer-connection-draining-enable: "true"
+    service.beta.kubernetes.io/aws-load-balancer-connection-draining-timeout: "30"
 spec:
-  replicas: 3
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
   selector:
-    matchLabels:
-      app: app1
-  strategy: {}
-  template:
-    metadata:
-      labels:
-        app: app1
-    spec:
-      containers:
-        - image: kiran2361993/kubegame:v2
-          name: kubegame
+    app: app1
+  type: LoadBalancer
+
