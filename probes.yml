@@ -23,3 +23,9 @@ spec:
               port: 80
             initialDelaySeconds: 5
             periodSeconds: 10
+          livelinessProbe:
+            httpGet:
+              path: /index.html
+              port: 80
+            initialDelaySeconds: 15
+            periodSeconds: 20
