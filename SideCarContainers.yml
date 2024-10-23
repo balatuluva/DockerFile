@@ -1,49 +1,120 @@
+#apiVersion: apps/v1
+#kind: Deployment
+#metadata:
+#  name: init-container-deployment
+#spec:
+#  replicas: 3
+#  selector:
+#    matchLabels:
+#      app: init-container-app
+#  template:
+#    metadata:
+#      labels:
+#        app: init-container-app
+#    spec:
+#      initContainers:
+#      - name: wait-for-service
+#        image: busybox
+#        command:
+#          [
+#            "sh",
+#            "-c",
+#            "until nslookup myservice.default.svc.cluster.local; do echo waiting for myservice; sleep 2; done",
+#          ]
+#      - name: perform-task
+#        image: busybox
+#        command:
+#          [
+#            "sh",
+#            "-c",
+#            'echo "Init container tasks completed" > /tasks/status.txt',
+#          ]
+#        volumeMounts:
+#        - name: tasks-volume
+#          mountPath: /tasks
+#      containers:
+#      - name: main-container
+#        image: busybox
+#        command:
+#          [
+#            "sh",
+#            "-c",
+#            'while true; do echo "Main container running"; sleep 10; done',
+#          ]
+#        volumeMounts:
+#        - name: tasks-volume
+#          mountPath: /tasks
+#      volumes:
+#      - name: tasks-volume
+#        emptyDir: {}
+
+---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: init-container-deployment
+  name: adapter-container-demo
+  labels:
+    env: prod
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
-      app: init-container-app
+      env: prod
   template:
     metadata:
       labels:
-        app: init-container-app
+        env: prod
     spec:
       initContainers:
-      - name: wait-for-service
-        image: busybox
-        command:
+      - name: init-container
+        image: alpine/git
+        command: ["/bin/sh"]
+        args:
           [
-            "sh",
             "-c",
-            "until nslookup myservice.default.svc.cluster.local; do echo waiting for myservice; sleep 2; done",
-          ]
-      - name: perform-task
-        image: busybox
-        command:
-          [
-            "sh",
-            "-c",
-            'echo "Init container tasks completed" > /tasks/status.txt',
+            "git clone https://github.com/saikiranpi/Sidecar_Test.git /html",
           ]
         volumeMounts:
-        - name: tasks-volume
-          mountPath: /tasks
+        - name: nginxvol
+          mountPath: /html/
       containers:
-      - name: main-container
-        image: busybox
-        command:
+      - name: adapter-container
+        image: busybox:1.28
+        command: [ "/bin/sh" ]
+        args:
           [
-            "sh",
             "-c",
-            'while true; do echo "Main container running"; sleep 10; done',
+            "while true; do echo \\<h1\\>$(date)\\</h1\\> >> /html/index.html; sleep 5; done",
           ]
         volumeMounts:
-        - name: tasks-volume
-          mountPath: /tasks
+        - name: nginxvol
+          mountPath: /html/
+      - name: main-container
+        image: nginx:latest
+        imagePullPolicy: Always
+        ports:
+          -containerPort: 80
+        volumeMounts:
+        - name: nginxvol
+          mountPath: /usr/share/nginx/html/
       volumes:
-      - name: tasks-volume
+      - name: nginxvol
         emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: adapter-container-demo
+  labels:
+    env: prod
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    env: prod
+  type: NodePort
+
+---
