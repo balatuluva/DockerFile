@@ -94,7 +94,7 @@ spec:
         image: nginx:latest
         imagePullPolicy: Always
         ports:
-          -containerPort: 80
+        - containerPort: 80
         volumeMounts:
         - name: nginxvol
           mountPath: /usr/share/nginx/html/
