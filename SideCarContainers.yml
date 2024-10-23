@@ -39,7 +39,7 @@ spec:
           [
             "sh",
             "-c",
-            "while true; do echo "Main container running"; sleep 10; done"
+            'while true; do echo "Main container running"; sleep 10; done',
           ]
         volumeMounts:
         - name: tasks-volume
