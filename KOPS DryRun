@@ -1,6 +1,6 @@
 kops create cluster --name=gehana26.fun \
 --state=s3://gehana26.fun --zones=us-east-1a,us-east-1b \
---node-count=2 --control-plane-count=1 --node-size=t2.micro --control-plane-size=t2.micro \
+--node-count=2 --control-plane-count=1 --node-size=t3.medium --control-plane-size=t3.medium \
 --control-plane-zones=us-east-1a --control-plane-volume-size 10 --node-volume-size 10 \
 --ssh-public-key ~/.ssh/id_rsa.pub \
 --dns-zone=gehana26.fun --dry-run --output yaml
