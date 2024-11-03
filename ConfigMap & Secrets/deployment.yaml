@@ -17,3 +17,5 @@ spec:
       containers:
         - image: balatuluva/configsecrets:v1
           name: configsecrets
+      imagePullSecrets:
+        - name: docker-pwd
