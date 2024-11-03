@@ -9,3 +9,6 @@ openssl x509 -req -in user2.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out us
 openssl genrsa -out bala.key 2048
 openssl req -new -key bala.key -out bala.csr -subj "/CN=bala/O=clusteradmin"
 openssl x509 -req -in bala.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out bala.crt -days 365
+
+export KUBECONFIG=USER1-CONFIG:USER2-CONFIG:BALA-CONFIG
+kubectl config view --merge --flatten > mixed-config.txt
