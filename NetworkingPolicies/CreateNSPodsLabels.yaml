@@ -1,0 +1,45 @@
+#Creating Namespaces & Utilpods
+  kubectl create ns prod
+    kubectl create ns dev
+    kubectl create ns qa
+  
+  #Labling Namespaces
+    kubectl label ns prod nsp=prod
+    kubectl label ns dev nsp=dev
+    kubectl label ns qa nsp=qa
+  
+  #Deploy  pod in all namespaces
+kubectl run -n prod prod1 --image=balatuluva/troubleshootingtools:v1 -l ns=prod
+kubectl run -n prod prod2 --image=balatuluva/troubleshootingtools:v1 -l ns=prod
+
+kubectl run -n dev dev1 --image=balatuluva/troubleshootingtools:v1 -l ns=dev
+kubectl run -n dev dev2 --image=balatuluva/troubleshootingtools:v1 -l ns=dev
+
+kubectl run -n qa qa1 --image=balatuluva/troubleshootingtools:v1 --labels ns=qa
+kubectl run -n qa qa2 --image=balatuluva/troubleshootingtools:v1 --labels ns=qa
+
+kubectl get pods -n prod -o wide --no-headers && ku get pods -n dev -o wide --no-headers && ku get pods -n qa -o wide --no-headers
+    
+    alias allpods='kubectl get pods -n prod -o wide --no-headers && kubectl get pods -n dev -o wide --no-headers && kubectl get pods -n qa -o wide --no-headers'
+
+source .bashrc
+
+env
+
+
+kubectl exec -it  prod1 -n prod -- ping -c 3  100.105.23.4 \
+  && kubectl exec -it  prod2 -n prod -- ping -c 3  100.117.26.4 \
+  && kubectl exec -it  prod1 -n prod -- ping -c 3   100.121.55.5 \
+  && kubectl exec -it  prod2 -n prod -- ping -c 3   100.105.23.5
+
+
+kubectl exec -it  dev1 -n dev -- ping -c 3    100.121.55.5 \
+  && kubectl exec -it  dev2 -n dev -- ping -c 3  100.105.23.5 \
+  && kubectl exec -it  dev1 -n dev -- ping -c 3   100.105.23.3 \
+  && kubectl exec -it  dev2 -n dev -- ping -c 3 100.121.55.4
+
+
+kubectl exec -it  qa1 -n qa -- ping -c 3     100.105.23.3  \
+  && kubectl exec -it  qa2 -n qa -- ping -c 3   100.121.55.4 \
+  && kubectl exec -it  qa1 -n qa -- ping -c 3  100.105.23.4 \
+  && kubectl exec -it  qa2 -n qa -- ping -c 3   100.117.26.4
