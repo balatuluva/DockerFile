@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: app1
+  name: app1
+spec:
+  replicas: 6
+  selector:
+    matchLabels:
+      app: app1
+template:
+  metadata:
+    labels:
+      app: app1
+  spec:
+    containers:
+      - image: nginx:latest
+        name: nginx
+    tolerations:
+      - key: "high-cpu"
+        operator: "Equal"
+        value: "yes"
+        effect: "NoExecute"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: app2
+  name: app2
+spec:
+  replicas: 6
+  selector:
+    matchLabels:
+      app: app2
+template:
+  metadata:
+    labels:
+      app: app2
+  spec:
+    containers:
+      - image: nginx:latest
+        name: nginx
+    tolerations:
+      - key: "med-cpu"
+        operator: "Equal"
+        value: "yes"
+        effect: "NoExecute"
+      - key: "low-cpu"
+        operator: "Equal"
+        value: "yes"
+        effect: "NoExecute"
+
+---
+
+kubectl taint node i-044ed660f5d4c3e34 high-cpu=yes:NoSchedule
+kubectl taint node i-0fb062b8a981a9da0 medium-cpu=yes:NoSchedule
+#kubectl taint node i-08fd11925e913b080 low-cpu=yes:NoSchedule
+---
+kubectl taint node i-044ed660f5d4c3e34 high-cpu=yes:NoExecute
+kubectl taint node i-0fb062b8a981a9da0 medium-cpu=yes:NoExecute
+#kubectl taint node i-08fd11925e913b080 low-cpu=yes:NoExecute
+---
+# To untaint everything we have tainted before use below
+---
+kubectl taint node i-044ed660f5d4c3e34 high-cpu-
+kubectl taint node i-0fb062b8a981a9da0 medium-cpu-
+#kubectl taint node i-08fd11925e913b080 low-cpu-
+---
+kubectl label node i-044ed660f5d4c3e34 env-
+kubectl label node i-0fb062b8a981a9da0 env-
+#kubectl label node i-08fd11925e913b080 env-
+---
+kubectl label node i-044ed660f5d4c3e34 high-perf-cpu-
+kubectl label node i-0fb062b8a981a9da0 low-perf-cpu-
