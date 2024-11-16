@@ -1,0 +1,48 @@
+https://github.com/saikiranpi/Mastering-Kubernetes/blob/Master/Day%2017%20kubeadm-kubernetes-cluster/README.md
+
+#!/bin/bash
+sudo apt update && apt install -y net-tools unzip
+sudo swapoff -a
+sudo apt install sed -y
+sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+
+sudo apt update && apt install containerd -y
+ps -ef | grep -i containerd | grep -v grep
+netstat -nltp | grep -i containerd | grep -v grep
+
+sudo apt-get update
+sudo apt-get install -y kubelet kubeadm kubectl
+sudo apt-mark hold kubelet kubeadm kubectl
+
+sudo modprobe br_netfilter
+echo 1 > /proc/sys/net/ipv4/ip_forward
+sudo kubeadm init --cri-socket /run/containerd/containerd.sock \
+--pod-network-cidr=192.168.0.0/16
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+kubectl get pods -n kube-system
+
+kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/tigera-operator.yaml
+kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/custom-resources.yaml
+
+sudo swapoff -a
+sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+sudo apt update && apt install -y net-tools unzip
+sudo apt update && apt install containerd -y
+sudo apt-get install -y apt-transport-https ca-certificates curl gpg
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.29/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+sudo apt-get update
+sudo apt-get install -y kubelet kubeadm kubectl
+sudo apt-mark hold kubelet kubeadm kubectl
+sudo modprobe br_netfilter
+echo 1 > /proc/sys/net/ipv4/ip_forward
+
+kubeadm token generate
+kubeadm token create jl1zrq.x425cqqcp87phctf --print-join-command
+kubeadm join
+
+kubectl get nodes
+
+kubectl taint nodes <node-name> node.kubernetes.io/not-ready-
