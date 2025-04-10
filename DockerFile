@@ -1,5 +1,9 @@
 FROM ubuntu:latest
 LABEL name="bala"
+RUN mkdir /app
+RUN groupadd appuser && useradd -r -g appuser appuser
+WORKDIR /app
+USER appuser
 ENV AWS_ACCESS_KEY_ID=12345
 ENV AWS_SECRET_KEY_ID=12345
 ENV AWS_DEFAULT_REGION=US-EAST-1B
